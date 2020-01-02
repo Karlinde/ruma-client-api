@@ -3,13 +3,13 @@
 use std::{
     collections::HashMap,
     convert::TryFrom,
-    fmt::{Debug, Display, Error as FmtError, Formatter, Result as FmtResult},
+    fmt::{Debug, Display, Error as FmtError, Formatter},
 };
 
 use ruma_events::Algorithm;
 use ruma_identifiers::{DeviceId, UserId};
 use serde::{
-    de::{self, Unexpected, Visitor},
+    de::{self, Unexpected},
     Deserialize, Deserializer, Serialize, Serializer,
 };
 
@@ -72,53 +72,37 @@ impl Serialize for AlgorithmAndDeviceId {
     }
 }
 
-struct AlgorithmAndDeviceIdVisitor;
-
-impl Visitor<'_> for AlgorithmAndDeviceIdVisitor {
-    type Value = AlgorithmAndDeviceId;
-
-    fn expecting(&self, formatter: &mut Formatter) -> FmtResult {
-        formatter.write_str("a string composed of an algorithm and a device id separated by ':'")
-    }
-
-    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
-    {
-        let parts = value.split(':').collect::<Vec<_>>();
-
-        if parts.len() < 2 {
-            return Err(de::Error::invalid_type(
-                Unexpected::Other("string without a ':' separator"),
-                &self,
-            ));
-        } else if parts.len() > 2 {
-            return Err(de::Error::invalid_type(
-                Unexpected::Other("string with more than one ':' separator"),
-                &self,
-            ));
-        }
-
-        let algorithm = KeyAlgorithm::try_from(parts[0]);
-        if algorithm.is_err() {
-            return Err(de::Error::invalid_value(
-                Unexpected::Str(parts[0]),
-                &"valid key algorithm",
-            ));
-        }
-        Ok(AlgorithmAndDeviceId(
-            algorithm.unwrap(),
-            parts[1].to_string(),
-        ))
-    }
-}
-
 impl<'de> Deserialize<'de> for AlgorithmAndDeviceId {
+    #[allow(clippy::comparison_chain)]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_str(AlgorithmAndDeviceIdVisitor)
+        let value = String::deserialize(deserializer)?;
+        let parts = value.split(':').collect::<Vec<_>>();
+
+        const EXPECTED: &str = "a string composed of an algorithm and a device id separated by ':'";
+
+        if parts.len() < 2 {
+            return Err(de::Error::invalid_type(
+                Unexpected::Other("string without a ':' separator"),
+                &EXPECTED,
+            ));
+        } else if parts.len() > 2 {
+            return Err(de::Error::invalid_type(
+                Unexpected::Other("string with more than one ':' separator"),
+                &EXPECTED,
+            ));
+        }
+
+        let algorithm_result = KeyAlgorithm::try_from(parts[0]);
+        match algorithm_result {
+            Ok(algorithm) => Ok(AlgorithmAndDeviceId(algorithm, parts[1].to_string())),
+            Err(_) => Err(de::Error::invalid_value(
+                Unexpected::Str(parts[0]),
+                &"valid key algorithm",
+            )),
+        }
     }
 }
 
