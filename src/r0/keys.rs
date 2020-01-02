@@ -8,9 +8,9 @@ use std::convert::TryFrom;
 use std::fmt::{Debug, Display, Error as FmtError, Formatter};
 
 pub mod claim_keys;
-pub mod create_keys;
 pub mod get_key_changes;
 pub mod get_keys;
+pub mod upload_keys;
 
 /// The basic key algorithms in the specification
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

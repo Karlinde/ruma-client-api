@@ -9,7 +9,7 @@ ruma_api! {
     metadata {
         description: "Publishes end-to-end encryption keys for the device.",
         method: POST,
-        name: "create_keys",
+        name: "upload_keys",
         path: "/_matrix/client/r0/keys/upload",
         rate_limited: false,
         requires_authentication: true,
