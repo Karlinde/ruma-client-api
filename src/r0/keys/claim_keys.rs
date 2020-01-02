@@ -1,11 +1,13 @@
 //! [POST /_matrix/client/r0/keys/claim](https://matrix.org/docs/spec/client_server/r0.6.0#post-matrix-client-r0-keys-claim)
 
-use super::{AlgorithmAndDeviceId, KeyAlgorithm, OneTimeKey};
+use std::collections::HashMap;
+
 use js_int::UInt;
 use ruma_api::ruma_api;
 use ruma_identifiers::{DeviceId, UserId};
 use serde_json::Value;
-use std::collections::HashMap;
+
+use super::{AlgorithmAndDeviceId, KeyAlgorithm, OneTimeKey};
 
 ruma_api! {
     metadata {

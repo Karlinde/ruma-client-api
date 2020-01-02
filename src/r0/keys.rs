@@ -1,11 +1,17 @@
 //! Endpoints for key management
 
+use std::{
+    collections::HashMap,
+    convert::TryFrom,
+    fmt::{Debug, Display, Error as FmtError, Formatter, Result as FmtResult},
+};
+
 use ruma_events::Algorithm;
 use ruma_identifiers::{DeviceId, UserId};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::fmt::{Debug, Display, Error as FmtError, Formatter};
+use serde::{
+    de::{self, Unexpected, Visitor},
+    Deserialize, Deserializer, Serialize, Serializer,
+};
 
 pub mod claim_keys;
 pub mod get_key_changes;
@@ -40,9 +46,9 @@ impl Display for KeyAlgorithm {
     }
 }
 
-impl<'a> TryFrom<&'a str> for KeyAlgorithm {
+impl TryFrom<&'_ str> for KeyAlgorithm {
     type Error = &'static str;
-    fn try_from(s: &'a str) -> Result<Self, Self::Error> {
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
             "ed25519" => Ok(KeyAlgorithm::Ed25519),
             "curve25519" => Ok(KeyAlgorithm::Curve25519),
@@ -53,28 +59,67 @@ impl<'a> TryFrom<&'a str> for KeyAlgorithm {
 }
 
 /// A key algorithm and a device id, combined with a ':'
-pub type AlgorithmAndDeviceId = String;
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct AlgorithmAndDeviceId(pub KeyAlgorithm, pub DeviceId);
 
-/// Combine a KeyAlgorithm and a DeviceId together with a ':'.
-/// For use with the key management endpoints.
-pub fn combine_algo_and_device_id(
-    algorithm: KeyAlgorithm,
-    device_id: &DeviceId,
-) -> AlgorithmAndDeviceId {
-    format!("{}:{}", algorithm, device_id)
+impl Serialize for AlgorithmAndDeviceId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let s = format!("{}:{}", self.0, self.1);
+        serializer.serialize_str(&s)
+    }
 }
 
-/// Parse a KeyAlgorithm and a DeviceId from a string where they are combined with a ':'.
-/// For use with the key management endpoints.
-pub fn parse_algo_and_device_id(s: &str) -> Result<(KeyAlgorithm, DeviceId), &'static str> {
-    let parts = s.split(':').collect::<Vec<_>>();
+struct AlgorithmAndDeviceIdVisitor;
 
-    if parts.len() != 2 {
-        return Err("Invalid format");
+impl Visitor<'_> for AlgorithmAndDeviceIdVisitor {
+    type Value = AlgorithmAndDeviceId;
+
+    fn expecting(&self, formatter: &mut Formatter) -> FmtResult {
+        formatter.write_str("a string composed of an algorithm and a device id separated by ':'")
     }
 
-    let algorithm = KeyAlgorithm::try_from(parts[0])?;
-    Ok((algorithm, parts[1].to_string()))
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        let parts = value.split(':').collect::<Vec<_>>();
+
+        if parts.len() < 2 {
+            return Err(de::Error::invalid_type(
+                Unexpected::Other("string without a ':' separator"),
+                &self,
+            ));
+        } else if parts.len() > 2 {
+            return Err(de::Error::invalid_type(
+                Unexpected::Other("string with more than one ':' separator"),
+                &self,
+            ));
+        }
+
+        let algorithm = KeyAlgorithm::try_from(parts[0]);
+        if algorithm.is_err() {
+            return Err(de::Error::invalid_value(
+                Unexpected::Str(parts[0]),
+                &"valid key algorithm",
+            ));
+        }
+        Ok(AlgorithmAndDeviceId(
+            algorithm.unwrap(),
+            parts[1].to_string(),
+        ))
+    }
+}
+
+impl<'de> Deserialize<'de> for AlgorithmAndDeviceId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_str(AlgorithmAndDeviceIdVisitor)
+    }
 }
 
 /// Identity keys for a device.

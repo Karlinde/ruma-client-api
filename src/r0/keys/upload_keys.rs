@@ -1,9 +1,11 @@
 //! [POST /_matrix/client/r0/keys/upload](https://matrix.org/docs/spec/client_server/r0.6.0#post-matrix-client-r0-keys-upload)
 
-use super::{AlgorithmAndDeviceId, DeviceKeys, KeyAlgorithm, OneTimeKey};
+use std::collections::HashMap;
+
 use js_int::UInt;
 use ruma_api::ruma_api;
-use std::collections::HashMap;
+
+use super::{AlgorithmAndDeviceId, DeviceKeys, KeyAlgorithm, OneTimeKey};
 
 ruma_api! {
     metadata {
@@ -23,7 +25,6 @@ ruma_api! {
         /// One-time public keys for "pre-key" messages.
         #[serde(skip_serializing_if = "Option::is_none")]
         pub one_time_keys: Option<HashMap<AlgorithmAndDeviceId, OneTimeKey>>,
-
     }
 
     response {

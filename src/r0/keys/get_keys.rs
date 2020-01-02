@@ -1,11 +1,13 @@
 //! [POST /_matrix/client/r0/keys/query](https://matrix.org/docs/spec/client_server/r0.6.0#post-matrix-client-r0-keys-query)
 
-use super::DeviceKeys;
+use std::collections::HashMap;
+
 use js_int::UInt;
 use ruma_api::ruma_api;
 use ruma_identifiers::{DeviceId, UserId};
 use serde_json::Value;
-use std::collections::HashMap;
+
+use super::DeviceKeys;
 
 ruma_api! {
     metadata {
