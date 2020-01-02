@@ -17,20 +17,20 @@ ruma_api! {
         /// The desired start point of the list.
         /// Should be the next_batch field from a response to an earlier call to /sync.
         #[ruma_api(query)]
-        from: String,
+        pub from: String,
 
         /// The desired end point of the list.
         /// Should be the next_batch field from a recent call to /sync - typically the most recent such call.
         #[ruma_api(query)]
-        to: String,
+        pub to: String,
     }
 
     response {
         /// The Matrix User IDs of all users who updated their device identity keys.
-        changed: Vec<UserId>,
+        pub changed: Vec<UserId>,
 
         /// The Matrix User IDs of all users who may have left all the end-to-end
         /// encrypted rooms they previously shared with the user.
-        left: Vec<UserId>
+        pub left: Vec<UserId>
     }
 }

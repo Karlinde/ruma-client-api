@@ -21,18 +21,18 @@ ruma_api! {
         /// The time (in milliseconds) to wait when downloading keys from remote servers.
         /// 10 seconds is the recommended default.
         #[serde(skip_serializing_if = "Option::is_none")]
-        timeout: Option<UInt>,
+        pub timeout: Option<UInt>,
 
         /// The keys to be claimed.
-        one_time_keys: HashMap<UserId, HashMap<DeviceId, KeyAlgorithm>>,
+        pub one_time_keys: HashMap<UserId, HashMap<DeviceId, KeyAlgorithm>>,
     }
 
     response {
         /// If any remote homeservers could not be reached, they are recorded here.
         /// The names of the properties are the names of the unreachable servers.
-        failures: HashMap<String, Value>,
+        pub failures: HashMap<String, Value>,
 
         /// One-time keys for the queried devices.
-        one_time_keys: HashMap<UserId, HashMap<DeviceId, HashMap<AlgorithmAndDeviceId, OneTimeKey>>>,
+        pub one_time_keys: HashMap<UserId, HashMap<DeviceId, HashMap<AlgorithmAndDeviceId, OneTimeKey>>>,
     }
 }

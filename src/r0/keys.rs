@@ -58,7 +58,7 @@ pub type AlgorithmAndDeviceId = String;
 /// Combine a KeyAlgorithm and a DeviceId together with a ':'.
 /// For use with the key management endpoints.
 pub fn combine_algo_and_device_id(
-    algorithm: &KeyAlgorithm,
+    algorithm: KeyAlgorithm,
     device_id: &DeviceId,
 ) -> AlgorithmAndDeviceId {
     format!("{}:{}", algorithm, device_id)

@@ -18,17 +18,17 @@ ruma_api! {
     request {
         /// Identity keys for the device. May be absent if no new identity keys are required.
         #[serde(skip_serializing_if = "Option::is_none")]
-        device_keys: Option<DeviceKeys>,
+        pub device_keys: Option<DeviceKeys>,
 
         /// One-time public keys for "pre-key" messages.
         #[serde(skip_serializing_if = "Option::is_none")]
-        one_time_keys: Option<HashMap<AlgorithmAndDeviceId, OneTimeKey>>,
+        pub one_time_keys: Option<HashMap<AlgorithmAndDeviceId, OneTimeKey>>,
 
     }
 
     response {
         /// For each key algorithm, the number of unclaimed one-time keys of that
         /// type currently held on the server for this device.
-        one_time_key_counts: HashMap<KeyAlgorithm, UInt>
+        pub one_time_key_counts: HashMap<KeyAlgorithm, UInt>
     }
 }
