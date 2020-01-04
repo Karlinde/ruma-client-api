@@ -23,6 +23,7 @@ Improvements:
 * Add `r0::keys` endpoints (introduced in r0.3.0)
 * Add `r0::session::get_login_types` (introduced in r0.4.0)
 * Add `r0::account::get_username_availability` (introduced in r0.4.0)
+* Add some of the `r0::push` endpoints
 
 # 0.5.0
 
