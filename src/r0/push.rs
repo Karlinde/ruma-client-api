@@ -67,9 +67,6 @@ pub struct PushRule {
     pub actions: Vec<Action>,
 
     /// Whether this is a default rule, or has been set explicitly.
-    // Note: allowing deserialization despite this being not present for
-    // compatibility reasons with Synapse.
-    #[serde(default)]
     pub default: bool,
 
     /// Whether the push rule is enabled or not.
