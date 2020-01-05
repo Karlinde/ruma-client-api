@@ -4,7 +4,9 @@ use js_int::UInt;
 use ruma_api::{ruma_api, Outgoing};
 use ruma_events::{collections::all, EventResult};
 use ruma_identifiers::RoomId;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+
+use super::Action;
 
 ruma_api! {
     metadata {
@@ -69,31 +71,4 @@ pub struct Notification {
 
     /// The unix timestamp at which the event notification was sent, in milliseconds.
     pub ts: UInt,
-}
-
-/// How a notification is delivered for a matching event
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Action {
-    /// Sets an entry in the 'tweaks' dictionary sent to the push gateway.
-    SetTweak {
-        /// Name of the tweak to set
-        set_tweak: String,
-        /// Tweaks may have a value set
-        #[serde(skip_serializing_if = "Option::is_none")]
-        value: Option<String>,
-    },
-
-    /// Causes matching events to generate a notification.
-    #[serde(rename = "notify")]
-    Notify,
-
-    /// Prevents matching events from generating a notification.
-    #[serde(rename = "dont_notify")]
-    DontNotify,
-
-    /// Behaves like notify but homeservers may choose to coalesce multiple events
-    /// into a single notification.
-    #[serde(rename = "coalesce")]
-    Coalesce,
 }
