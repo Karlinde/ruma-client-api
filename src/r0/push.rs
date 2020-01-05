@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use serde::{
     de::{Error as SerdeError, MapAccess, Unexpected, Visitor},
-    ser::SerializeStructVariant,
+    ser::SerializeStruct,
     Deserialize, Deserializer, Serialize, Serializer,
 };
 use serde_json::Value as JsonValue;
@@ -13,11 +13,15 @@ pub mod delete_pushrule;
 pub mod get_notifications;
 pub mod get_pushers;
 pub mod get_pushrule;
+pub mod get_pushrule_actions;
+pub mod get_pushrule_enabled;
 pub mod get_pushrules_all;
 pub mod get_pushrules_device_scope;
 pub mod get_pushrules_global_scope;
 pub mod set_pusher;
 pub mod set_pushrule;
+pub mod set_pushrule_actions;
+pub mod set_pushrule_enabled;
 
 /// The kinds of push rules that are available
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
@@ -238,8 +242,7 @@ impl Serialize for Action {
                     Some(_) => 2,
                     None => 1,
                 };
-                let mut s =
-                    serializer.serialize_struct_variant("Action", 3, "SetTweak", num_fields)?;
+                let mut s = serializer.serialize_struct("Action", num_fields)?;
                 s.serialize_field("set_tweak", kind_name)?;
 
                 match &value {
