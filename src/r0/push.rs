@@ -1,9 +1,6 @@
 //! Endpoints for push notifications.
 
-use std::{
-    convert::TryFrom,
-    fmt::{Display, Formatter, Result as FmtResult},
-};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use serde::{
     de::{Error as SerdeError, MapAccess, Unexpected, Visitor},
@@ -56,21 +53,6 @@ impl Display for RuleKind {
             RuleKind::Content => "content",
         };
         write!(f, "{}", s)
-    }
-}
-
-impl<'a> TryFrom<&'a str> for RuleKind {
-    type Error = &'static str;
-
-    fn try_from(kind: &'a str) -> Result<Self, Self::Error> {
-        match kind {
-            "override" => Ok(RuleKind::Override),
-            "underride" => Ok(RuleKind::Underride),
-            "sender" => Ok(RuleKind::Sender),
-            "room" => Ok(RuleKind::Room),
-            "content" => Ok(RuleKind::Content),
-            _ => Err("invalid rule kind"),
-        }
     }
 }
 
