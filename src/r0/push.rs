@@ -25,25 +25,21 @@ pub mod set_pushrule_enabled;
 
 /// The kinds of push rules that are available
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+#[serde(rename_all = "lowercase")]
 pub enum RuleKind {
     /// User-configured rules that override all other kinds
-    #[serde(rename = "override")]
     Override,
 
     /// Lowest priority user-defined rules
-    #[serde(rename = "underride")]
     Underride,
 
     /// Sender-specific rules
-    #[serde(rename = "sender")]
     Sender,
 
     /// Room-specific rules
-    #[serde(rename = "room")]
     Room,
 
     /// Content-specific rules
-    #[serde(rename = "content")]
     Content,
 }
 
@@ -87,10 +83,9 @@ pub struct PushRule {
 
 /// A condition for a push rule
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "kind")] // Using internally tagged enum representation to match the spec
+#[serde(tag = "kind", rename_all = "snake_case")] // Using internally tagged enum representation to match the spec
 pub enum PushCondition {
     /// This is a glob pattern match on a field of the event.
-    #[serde(rename = "event_match")]
     EventMatch {
         /// The dot-separated field of the event to match, e.g. `content.body`
         key: String,
@@ -100,11 +95,9 @@ pub enum PushCondition {
 
     /// This matches unencrypted messages where `content.body` contains
     /// the owner's display name in that room.
-    #[serde(rename = "contains_display_name")]
     ContainsDisplayName,
 
     /// This matches the current number of members in the room.
-    #[serde(rename = "room_member_count")]
     RoomMemberCount {
         /// A decimal integer optionally prefixed by one of, ==, <, >, >= or <=.
         /// Default prefix is ==.
@@ -113,7 +106,6 @@ pub enum PushCondition {
 
     /// This takes into account the current power levels in the room, ensuring the
     /// sender of the event has high enough power to trigger the notification.
-    #[serde(rename = "sender_notification_permission")]
     SenderNotificationPermission {
         /// A string that determines the power level the sender must have to
         /// trigger notifications of a given type, such as `room`.
@@ -153,13 +145,12 @@ pub struct Pusher {
 
 /// Which kind a pusher is
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PusherKind {
     /// A pusher that sends HTTP pokes.
-    #[serde(rename = "http")]
     Http,
 
     /// A pusher that emails the user with unread notifications.
-    #[serde(rename = "email")]
     Email,
 }
 
@@ -178,13 +169,15 @@ pub struct PusherData {
 /// A special format that the homeserver should use when sending notifications to a Push Gateway.
 /// Currently, only "event_id_only" is supported as of [Push Gateway API r0.1.1](https://matrix.org/docs/spec/push_gateway/r0.1.1#homeserver-behaviour)
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PushFormat {
     /// Require the homeserver to only send a reduced set of fields in the push.
-    #[serde(rename = "event_id_only")]
     EventIdOnly,
 }
 
-/// How a notification is delivered for a matching event
+/// This represents the different actions that should be taken when a rule is matched, and
+/// controls how notifications are delivered to the client.
+/// See [this section in the spec](https://matrix.org/docs/spec/client_server/r0.6.0#actions) for details.
 #[derive(Clone, Debug)]
 pub enum Action {
     /// Causes matching events to generate a notification.
@@ -216,7 +209,7 @@ pub enum TweakKind {
     /// The "highlight" tweak.
     Highlight,
 
-    /// A custom client-defined tweak.
+    /// A name for a custom client-defined tweak.
     Custom(String),
 }
 
