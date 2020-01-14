@@ -16,7 +16,6 @@ pub mod get_pushrule;
 pub mod get_pushrule_actions;
 pub mod get_pushrule_enabled;
 pub mod get_pushrules_all;
-pub mod get_pushrules_device_scope;
 pub mod get_pushrules_global_scope;
 pub mod set_pusher;
 pub mod set_pushrule;
@@ -25,7 +24,7 @@ pub mod set_pushrule_enabled;
 
 /// The kinds of push rules that are available
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum RuleKind {
     /// User-configured rules that override all other kinds
     Override,
@@ -177,7 +176,7 @@ pub enum PushFormat {
 
 /// This represents the different actions that should be taken when a rule is matched, and
 /// controls how notifications are delivered to the client.
-/// See [this section in the spec](https://matrix.org/docs/spec/client_server/r0.6.0#actions) for details.
+// See https://matrix.org/docs/spec/client_server/r0.6.0#actions for details.
 #[derive(Clone, Debug)]
 pub enum Action {
     /// Causes matching events to generate a notification.
@@ -269,9 +268,9 @@ impl<'de> Deserialize<'de> for Action {
                     "notify" => Ok(Action::Notify),
                     "dont_notify" => Ok(Action::DontNotify),
                     "coalesce" => Ok(Action::Coalesce),
-                    _ => Err(E::invalid_value(
-                        Unexpected::Str(v),
-                        &"valid value of notify, dont_notify or coalesce",
+                    s => Err(E::unknown_variant(
+                        &s,
+                        &["notify", "dont_notify", "coalesce"],
                     )),
                 }
             }
@@ -316,7 +315,7 @@ impl<'de> Deserialize<'de> for Action {
                         value: tweak_value,
                     }),
                     None => Err(A::Error::invalid_type(
-                        Unexpected::Other("dict without \"set_tweak\" key"),
+                        Unexpected::Other("object without \"set_tweak\" key"),
                         &"valid \"set_tweak\" action object",
                     )),
                 }

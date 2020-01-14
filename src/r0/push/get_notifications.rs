@@ -55,7 +55,7 @@ pub struct Notification {
     /// The actions to perform when the conditions for this rule are met.
     pub actions: Vec<Action>,
 
-    /// The Event object for the event that triggered the notification
+    /// The event that triggered the notification.
     #[wrap_incoming(with EventResult)]
     pub event: all::Event,
 
