@@ -13,6 +13,11 @@ Breaking changes:
   * Move `r0::sync::get_state_events` to `r0::state::get_state_events`
   * Move `r0::sync::get_state_events_for_empty_key` to `r0::state::get_state_events_for_empty_key`
   * Move `r0::sync::get_state_events_for_key` to `r0::state::get_state_events_for_key`
+* Update endpoints for requesting account management tokens via email:
+  * Move `r0::account::request_password_change_token` to `r0::account::request_password_change_token_via_email`
+  * Move `r0::account::request_register_token` to `r0::account::request_registration_token_via_email`
+  * Modify `r0::account::request_registration_token_via_email` not to be rate-limited and require authentication
+* Merge duplicate enums `r0::contact::get_contact::Medium` and `r0::session::login::Medium` and move them to `r0::thirdparty`
 
 Improvements:
 
@@ -23,6 +28,15 @@ Improvements:
 * Add `r0::keys` endpoints (introduced in r0.3.0)
 * Add `r0::session::get_login_types` (introduced in r0.4.0)
 * Add `r0::account::get_username_availability` (introduced in r0.4.0)
+* Add endpoints to request management tokens (introduced upstream in r0.4.0):
+  * `r0::account::request_3pid_management_token_via_msisdn`
+  * `r0::account::request_password_change_token_via_msisdn`
+  * `r0::account::request_registration_token_via_msisdn`
+  * `r0::acount::request_3pid_management_token_via_email`
+* Update `r0::presence_get_presence` from r0.4.0 to r0.6.0
+* Add `r0::account::bind_3pid`
+* Add `r0::account::delete_3pid`
+* Add `r0::account::unbind_3pid`
 * Add `r0::push` endpoints
 
 # 0.5.0
